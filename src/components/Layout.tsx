@@ -71,6 +71,8 @@ export default function Layout() {
       const subscribers = await getSubscribers();
       const coursePoints = await getCoursePoints();
       const dietItems = await getDietItems();
+      const products = await getProducts();
+      const sales = await getSales();
 
       const backup = {
         timestamp: new Date().toISOString(),
@@ -80,6 +82,8 @@ export default function Layout() {
           subscribers,
           coursePoints,
           dietItems,
+          products,
+          sales,
         },
       };
 
