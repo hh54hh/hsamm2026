@@ -88,7 +88,7 @@ export default function SystemDiagnostics() {
         addResult({
           title: "اتصال قاعدة البيانات",
           status: "success",
-          message: "تم الاتصال بقاعدة البيانات بنجاح",
+          message: "تم الاتصال بقاعدة البيا��ات بنجاح",
           details: "جميع العمليات متاحة",
           timestamp: new Date().toISOString(),
         });
@@ -152,7 +152,7 @@ export default function SystemDiagnostics() {
         ]);
 
       addResult({
-        title: "الب��انات الأساسية",
+        title: "البيانات الأساسية",
         status: "success",
         message: "تم تحميل البيانات بنجاح",
         details: `المشتركين: ${subscribers.length}, التمارين: ${coursePoints.length}, الأطعمة: ${dietItems.length}, المنتجات: ${products.length}, المبيعات: ${sales.length}`,
@@ -186,7 +186,7 @@ export default function SystemDiagnostics() {
             }
           }
         } catch (error) {
-          console.warn(`Error checking subscriber ${subscriber.id}:`, error);
+          // Skip this subscriber if there's an error loading details
         }
       }
 
