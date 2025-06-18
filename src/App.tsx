@@ -45,15 +45,35 @@ const App = () => {
   const [authState, setAuthState] = useState<{
     isAuthenticated: boolean;
   } | null>(null);
+  const [dbError, setDbError] = useState<string | null>(null);
 
   const initializeApp = async () => {
     try {
+      // Check database initialization
+      const dbStatus = await checkDatabaseInitialization();
+      if (!dbStatus.isInitialized) {
+        console.warn(
+          "Database not properly initialized:",
+          dbStatus.missingTables,
+        );
+        setDbError(
+          `قاعدة البيانات غير مهيأة. الجداول المفقودة: ${dbStatus.missingTables.join(", ")}. يرجى تشغيل ملف gym-management-new-schema.sql في Supabase.`,
+        );
+      } else {
+        // Initialize with sample data if needed
+        await initializeDatabaseWithSampleData();
+        setDbError(null);
+      }
+
       // Get auth state
       const auth = getAuthState();
       setAuthState(auth);
       setIsInitialized(true);
     } catch (error) {
       console.error("App initialization failed:", error);
+      setDbError(
+        error instanceof Error ? error.message : "خطأ في تهيئة النظام",
+      );
       // Set default state in case of error
       setAuthState({ isAuthenticated: false });
       setIsInitialized(true);
