@@ -6,59 +6,68 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-// Pages
+// Pages - using lazy loading for better performance
+import { lazy, Suspense } from "react";
 import Login from "./pages/Login";
-import Members from "./pages/Members";
-import AddMember from "./pages/AddMember";
-import AddMemberEnhanced from "./pages/AddMemberEnhanced";
-import Courses from "./pages/Courses";
-import DietPlans from "./pages/DietPlans";
-import Inventory from "./pages/Inventory";
 import NotFound from "./pages/NotFound";
-import NutritionRecommendation from "./pages/NutritionRecommendation";
+
+const Subscribers = lazy(() => import("./pages/Subscribers"));
+const AddSubscriber = lazy(() => import("./pages/AddSubscriber"));
+const Courses = lazy(() => import("./pages/Courses"));
+const DietPlans = lazy(() => import("./pages/DietPlans"));
+const Inventory = lazy(() => import("./pages/Inventory"));
+const SystemDiagnostics = lazy(() => import("./pages/SystemDiagnostics"));
 
 // Components
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import ConnectionNotifications from "./components/ConnectionNotifications";
-import ConnectionFixNotification from "./components/ConnectionFixNotification";
 
 // Utils
-import { initializeUnifiedDatabase } from "./lib/unified-database";
-import { getAuthState } from "./lib/storage-new";
+import { getAuthState } from "@/lib/auth-new";
+import {
+  checkDatabaseInitialization,
+  initializeDatabaseWithSampleData,
+} from "@/lib/database-init";
 
 // Loading component
-const DatabaseLoading = () => (
+const AppLoading = () => (
   <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
     <div className="text-center space-y-4">
       <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto"></div>
       <h2 className="text-xl font-semibold text-gray-900">
-        جاري تهيئة قاعدة البيانات...
+        جاري تحميل النظام...
       </h2>
       <p className="text-gray-600">يرجى الانتظار قليلاً</p>
     </div>
   </div>
 );
 
-const DatabaseError = ({
-  error,
-  onRetry,
-}: {
-  error: string;
-  onRetry: () => void;
-}) => (
-  <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 flex items-center justify-center">
-    <div className="text-center space-y-4 max-w-md">
+// Database error component
+const DatabaseError = ({ error }: { error: string }) => (
+  <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 flex items-center justify-center p-4">
+    <div className="text-center space-y-6 max-w-2xl">
       <div className="text-red-500 text-6xl">⚠️</div>
-      <h2 className="text-xl font-semibold text-gray-900">
-        خطأ في قاعدة البيانات
+      <h2 className="text-2xl font-bold text-gray-900">
+        خطأ في إعداد قاعدة البيانات
       </h2>
-      <p className="text-gray-600">{error}</p>
+      <div className="bg-white p-6 rounded-lg border border-red-200 text-right">
+        <p className="text-red-700 mb-4">{error}</p>
+        <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
+          <h3 className="font-semibold mb-2">خطوات الحل:</h3>
+          <ol className="list-decimal list-inside space-y-1">
+            <li>انتقل إلى لوحة تحكم Supabase</li>
+            <li>اذهب إلى قسم SQL Editor</li>
+            <li>انسخ والصق محتوى ملف gym-management-new-schema.sql</li>
+            <li>اضغط Run لتنفيذ الاستعلام</li>
+            <li>أعد تحميل الصفحة</li>
+          </ol>
+        </div>
+      </div>
       <button
-        onClick={onRetry}
-        className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+        onClick={() => window.location.reload()}
+        className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg transition-colors"
       >
-        إعادة المحاولة
+        إعادة تحميل الصفحة
       </button>
     </div>
   </div>
@@ -67,27 +76,42 @@ const DatabaseError = ({
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [isDBInitialized, setIsDBInitialized] = useState(false);
-  const [dbError, setDbError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [authState, setAuthState] = useState<{
     isAuthenticated: boolean;
   } | null>(null);
+  const [dbError, setDbError] = useState<string | null>(null);
 
   const initializeApp = async () => {
     try {
-      setDbError(null);
-      // Initialize unified database (works offline/online)
-      await initializeUnifiedDatabase();
-      setIsDBInitialized(true);
+      // Check database initialization
+      const dbStatus = await checkDatabaseInitialization();
+      if (!dbStatus.isInitialized) {
+        console.warn(
+          "Database not properly initialized:",
+          dbStatus.missingTables,
+        );
+        setDbError(
+          `قاعدة البيانات غير مهيأة. الجداول المفقودة: ${dbStatus.missingTables.join(", ")}. يرجى تشغيل ملف gym-management-new-schema.sql في Supabase.`,
+        );
+      } else {
+        // Initialize with sample data if needed
+        await initializeDatabaseWithSampleData();
+        setDbError(null);
+      }
 
       // Get auth state
-      const auth = await getAuthState();
+      const auth = getAuthState();
       setAuthState(auth);
+      setIsInitialized(true);
     } catch (error) {
-      console.error("Database initialization failed:", error);
+      console.error("App initialization failed:", error);
       setDbError(
-        error instanceof Error ? error.message : "فشل في تهيئة قاعدة البيانات",
+        error instanceof Error ? error.message : "خطأ في تهيئة النظام",
       );
+      // Set default state in case of error
+      setAuthState({ isAuthenticated: false });
+      setIsInitialized(true);
     }
   };
 
@@ -95,19 +119,14 @@ const App = () => {
     initializeApp();
   }, []);
 
-  // Show loading while initializing database
-  if (!isDBInitialized && !dbError) {
-    return <DatabaseLoading />;
+  // Show loading while initializing
+  if (!isInitialized || !authState) {
+    return <AppLoading />;
   }
 
-  // Show error if database failed to initialize
+  // Show database error if database is not properly set up
   if (dbError) {
-    return <DatabaseError error={dbError} onRetry={initializeApp} />;
-  }
-
-  // Show loading if auth state is not loaded yet
-  if (!authState) {
-    return <DatabaseLoading />;
+    return <DatabaseError error={dbError} />;
   }
 
   return (
@@ -115,8 +134,6 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <ConnectionNotifications />
-        <ConnectionFixNotification />
         <BrowserRouter>
           <Routes>
             {/* Redirect root to appropriate page based on auth */}
@@ -124,7 +141,7 @@ const App = () => {
               path="/"
               element={
                 authState.isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
+                  <Navigate to="/dashboard/subscribers" replace />
                 ) : (
                   <Navigate to="/login" replace />
                 )
@@ -143,20 +160,55 @@ const App = () => {
                 </ProtectedRoute>
               }
             >
-              {/* Default dashboard route goes to members */}
-              <Route index element={<Members />} />
-              <Route path="members" element={<Members />} />
-              <Route path="add-member" element={<AddMemberEnhanced />} />
+              {/* Default dashboard route goes to subscribers */}
+              <Route index element={<Navigate to="subscribers" replace />} />
               <Route
-                path="add-member-enhanced"
-                element={<AddMemberEnhanced />}
+                path="subscribers"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <Subscribers />
+                  </Suspense>
+                }
               />
-              <Route path="courses" element={<Courses />} />
-              <Route path="diet-plans" element={<DietPlans />} />
-              <Route path="inventory" element={<Inventory />} />
               <Route
-                path="nutrition-recommendation/:memberId"
-                element={<NutritionRecommendation />}
+                path="add-subscriber"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <AddSubscriber />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="courses"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <Courses />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="diet-plans"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <DietPlans />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="inventory"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <Inventory />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="diagnostics"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <SystemDiagnostics />
+                  </Suspense>
+                }
               />
             </Route>
 
