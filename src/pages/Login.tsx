@@ -106,7 +106,7 @@ export default function Login() {
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500">
-              مرحباً بك في نظام إدارة صالة حسام
+              مرحباً بك في نظام إدارة {GYM_NAME}
             </p>
             <div className="flex justify-center items-center gap-2 mt-2 text-xs text-gray-400">
               <span>نظام ذكي ومتطور</span>
