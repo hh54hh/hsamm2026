@@ -28,8 +28,8 @@ export default function Login() {
     // Simulate authentication delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    if (code === ACCESS_CODE) {
-      await login();
+    const success = await login(code);
+    if (success) {
       navigate("/dashboard");
     } else {
       setError("رمز الدخول غير صحيح");
@@ -106,7 +106,7 @@ export default function Login() {
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500">
-              م��حباً بك في نظام إدارة صالة حسام
+              مرحباً بك في نظام إدارة صالة حسام
             </p>
             <div className="flex justify-center items-center gap-2 mt-2 text-xs text-gray-400">
               <span>نظام ذكي ومتطور</span>
