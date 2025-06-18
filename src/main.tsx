@@ -18,6 +18,9 @@ const updateSW = registerSW({
   onOfflineReady() {
     // App is ready to work offline
   },
+  onRegisterError(error) {
+    // Service worker registration failed, continue without it
+  },
 });
 
 createRoot(document.getElementById("root")!).render(<App />);
