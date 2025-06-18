@@ -4,7 +4,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import {
   Activity,
   Database,
@@ -16,7 +15,6 @@ import {
   Wifi,
   WifiOff,
   Server,
-  HardDrive,
   BarChart3,
   Search,
   Settings,
@@ -154,7 +152,7 @@ export default function SystemDiagnostics() {
         ]);
 
       addResult({
-        title: "البيانات الأساسية",
+        title: "الب��انات الأساسية",
         status: "success",
         message: "تم تحميل البيانات بنجاح",
         details: `المشتركين: ${subscribers.length}, التمارين: ${coursePoints.length}, الأطعمة: ${dietItems.length}, المنتجات: ${products.length}, المبيعات: ${sales.length}`,
