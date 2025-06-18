@@ -5,6 +5,8 @@ import {
   UserPlus,
   GraduationCap,
   Apple,
+  Package,
+  Activity,
   LogOut,
   Dumbbell,
   Menu,
