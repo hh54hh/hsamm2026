@@ -53,7 +53,6 @@ import {
   Calendar,
   ShoppingCart,
   DollarSign,
-  Users,
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
