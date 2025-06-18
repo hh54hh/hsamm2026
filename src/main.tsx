@@ -6,8 +6,6 @@ import "./index.css";
 import "./utils/consoleFilter";
 // Import performance optimizer
 import "./utils/performanceOptimizerFixed";
-// Import data persistence monitor to prevent data loss
-import "./utils/dataPersistenceMonitor";
 
 // Register service worker for PWA
 import { registerSW } from "virtual:pwa-register";
