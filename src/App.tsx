@@ -70,8 +70,6 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <ConnectionNotifications />
-        <ConnectionFixNotification />
         <BrowserRouter>
           <Routes>
             {/* Redirect root to appropriate page based on auth */}
@@ -79,7 +77,7 @@ const App = () => {
               path="/"
               element={
                 authState.isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
+                  <Navigate to="/dashboard/subscribers" replace />
                 ) : (
                   <Navigate to="/login" replace />
                 )
@@ -98,21 +96,12 @@ const App = () => {
                 </ProtectedRoute>
               }
             >
-              {/* Default dashboard route goes to members */}
-              <Route index element={<Members />} />
-              <Route path="members" element={<Members />} />
-              <Route path="add-member" element={<AddMemberEnhanced />} />
-              <Route
-                path="add-member-enhanced"
-                element={<AddMemberEnhanced />}
-              />
+              {/* Default dashboard route goes to subscribers */}
+              <Route index element={<Navigate to="subscribers" replace />} />
+              <Route path="subscribers" element={<Subscribers />} />
+              <Route path="add-subscriber" element={<AddSubscriber />} />
               <Route path="courses" element={<Courses />} />
               <Route path="diet-plans" element={<DietPlans />} />
-              <Route path="inventory" element={<Inventory />} />
-              <Route
-                path="nutrition-recommendation/:memberId"
-                element={<NutritionRecommendation />}
-              />
             </Route>
 
             {/* Catch all for 404 */}
