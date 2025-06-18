@@ -162,12 +162,54 @@ const App = () => {
             >
               {/* Default dashboard route goes to subscribers */}
               <Route index element={<Navigate to="subscribers" replace />} />
-              <Route path="subscribers" element={<Subscribers />} />
-              <Route path="add-subscriber" element={<AddSubscriber />} />
-              <Route path="courses" element={<Courses />} />
-              <Route path="diet-plans" element={<DietPlans />} />
-              <Route path="inventory" element={<Inventory />} />
-              <Route path="diagnostics" element={<SystemDiagnostics />} />
+              <Route
+                path="subscribers"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <Subscribers />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="add-subscriber"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <AddSubscriber />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="courses"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <Courses />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="diet-plans"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <DietPlans />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="inventory"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <Inventory />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="diagnostics"
+                element={
+                  <Suspense fallback={<AppLoading />}>
+                    <SystemDiagnostics />
+                  </Suspense>
+                }
+              />
             </Route>
 
             {/* Catch all for 404 */}
