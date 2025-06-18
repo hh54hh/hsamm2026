@@ -17,12 +17,9 @@ import NotFound from "./pages/NotFound";
 // Components
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import ConnectionNotifications from "./components/ConnectionNotifications";
-import ConnectionFixNotification from "./components/ConnectionFixNotification";
 
 // Utils
-import { initializeUnifiedDatabase } from "./lib/unified-database";
-import { getAuthState } from "./lib/storage-new";
+import { getAuthState } from "@/lib/auth-new";
 
 // Loading component
 const DatabaseLoading = () => (
