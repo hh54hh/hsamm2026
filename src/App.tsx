@@ -12,6 +12,8 @@ import Subscribers from "./pages/Subscribers";
 import AddSubscriber from "./pages/AddSubscriber";
 import Courses from "./pages/Courses";
 import DietPlans from "./pages/DietPlans";
+import Inventory from "./pages/Inventory";
+import SystemDiagnostics from "./pages/SystemDiagnostics";
 import NotFound from "./pages/NotFound";
 
 // Components
