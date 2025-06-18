@@ -8,14 +8,11 @@ import { useEffect, useState } from "react";
 
 // Pages
 import Login from "./pages/Login";
-import Members from "./pages/Members";
-import AddMember from "./pages/AddMember";
-import AddMemberEnhanced from "./pages/AddMemberEnhanced";
+import Subscribers from "./pages/Subscribers";
+import AddSubscriber from "./pages/AddSubscriber";
 import Courses from "./pages/Courses";
 import DietPlans from "./pages/DietPlans";
-import Inventory from "./pages/Inventory";
 import NotFound from "./pages/NotFound";
-import NutritionRecommendation from "./pages/NutritionRecommendation";
 
 // Components
 import Layout from "./components/Layout";
