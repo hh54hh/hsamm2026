@@ -4,8 +4,6 @@ import "./index.css";
 
 // Import console filter to suppress third-party library warnings
 import "./utils/consoleFilter";
-// Import performance optimizer
-import "./utils/performanceOptimizerFixed";
 
 // Register service worker for PWA
 import { registerSW } from "virtual:pwa-register";
