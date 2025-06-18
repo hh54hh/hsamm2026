@@ -164,6 +164,8 @@ const App = () => {
               <Route path="add-subscriber" element={<AddSubscriber />} />
               <Route path="courses" element={<Courses />} />
               <Route path="diet-plans" element={<DietPlans />} />
+              <Route path="inventory" element={<Inventory />} />
+              <Route path="diagnostics" element={<SystemDiagnostics />} />
             </Route>
 
             {/* Catch all for 404 */}
