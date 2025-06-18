@@ -12,9 +12,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dumbbell, Lock } from "lucide-react";
-import { login } from "@/lib/storage-new";
-
-const ACCESS_CODE = "112233";
+import { login, GYM_ACCESS_CODE, GYM_NAME } from "@/lib/auth-new";
 
 export default function Login() {
   const [code, setCode] = useState("");
@@ -108,7 +106,7 @@ export default function Login() {
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500">
-              مرحباً بك في نظام إدارة صالة حسام
+              م��حباً بك في نظام إدارة صالة حسام
             </p>
             <div className="flex justify-center items-center gap-2 mt-2 text-xs text-gray-400">
               <span>نظام ذكي ومتطور</span>
