@@ -53,7 +53,7 @@ export default function Login() {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-            صالة حسام
+            {GYM_NAME}
           </CardTitle>
           <CardDescription className="text-lg text-gray-600 mt-2">
             لكمال الأجسام والرشاقة
