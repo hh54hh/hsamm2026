@@ -20,6 +20,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 // Utils
 import { getAuthState } from "@/lib/auth-new";
+import {
+  checkDatabaseInitialization,
+  initializeDatabaseWithSampleData,
+} from "@/lib/database-init";
 
 // Loading component
 const AppLoading = () => (
