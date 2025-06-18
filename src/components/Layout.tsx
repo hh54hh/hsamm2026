@@ -14,6 +14,26 @@ import {
   Download,
   FileText,
 } from "lucide-react";
+import SyncStatusIndicator from "@/components/SyncStatusIndicator";
+import ClearDataComponent from "@/components/ClearDataComponent";
+import SupabaseStorageDiagnostics from "@/components/SupabaseStorageDiagnostics";
+import RealTimeSyncMonitor from "@/components/RealTimeSyncMonitor";
+import DataStorageVerification from "@/components/DataStorageVerification";
+import MembersSupabaseTest from "@/components/MembersSupabaseTest";
+import SyncErrorDebugger from "@/components/SyncErrorDebugger";
+import SupabaseSchemaSync from "@/components/SupabaseSchemaSync";
+import ForceSyncUtility from "@/components/ForceSyncUtility";
+import ComprehensiveStorageDiagnostics from "@/components/ComprehensiveStorageDiagnostics";
+import MemberGroupsStorageDiagnostics from "@/components/MemberGroupsStorageDiagnostics";
+import MemberGroupsQuickFix from "@/components/MemberGroupsQuickFix";
+import DebuggingPanel from "@/components/DebuggingPanel";
+import EmergencyDataLossFix from "./EmergencyDataLossFix";
+import MemberRelationshipsFix from "./MemberRelationshipsFix";
+import CompleteMemberRelationshipsFix from "./CompleteMemberRelationshipsFix";
+import EmergencyFPSRecovery from "./EmergencyFPSRecovery";
+import InfiniteLoopMonitor from "./InfiniteLoopMonitor";
+import EmergencyRecovery from "./EmergencyRecovery";
+import SalesTableSyncFix from "./SalesTableSyncFix";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +41,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   logout,
   getMembers,
@@ -32,183 +58,24 @@ import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "الأعضاء", href: "/dashboard", icon: Users },
-  { name: "إضافة مشترك", href: "/dashboard/add-member", icon: UserPlus },
+  { name: "إضافة عضو", href: "/dashboard/add-member-enhanced", icon: UserPlus },
   { name: "الكورسات", href: "/dashboard/courses", icon: GraduationCap },
   { name: "الأنظمة الغذائية", href: "/dashboard/diet-plans", icon: Apple },
-  { name: "المخزن", href: "/dashboard/inventory", icon: Package },
+  { name: "المخزون", href: "/dashboard/inventory", icon: Package },
 ];
 
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeComponent, setActiveComponent] = useState<string | null>(null);
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
 
-  const handleBackupDownload = async () => {
-    try {
-      const [members, courses, dietPlans] = await Promise.all([
-        getMembers(),
-        getCourses(),
-        getDietPlans(),
-      ]);
-
-      const backupData = {
-        members,
-        courses,
-        dietPlans,
-        exportDate: new Date().toISOString(),
-        version: "1.0",
-      };
-
-      const dataStr = JSON.stringify(backupData, null, 2);
-      const dataBlob = new Blob([dataStr], { type: "application/json" });
-      const url = URL.createObjectURL(dataBlob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `gym-backup-${new Date().toISOString().split("T")[0]}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error creating backup:", error);
-      alert("حدث خطأ أثناء إنشاء النسخة الاحتياطية");
-    }
-  };
-
-  const handleBackupPrint = async () => {
-    try {
-      const [members, courses, dietPlans] = await Promise.all([
-        getMembers(),
-        getCourses(),
-        getDietPlans(),
-      ]);
-
-      const printWindow = window.open("", "_blank");
-      if (!printWindow) return;
-
-      const html = `
-        <!DOCTYPE html>
-        <html dir="rtl" lang="ar">
-        <head>
-          <meta charset="UTF-8">
-          <title>النسخة الاحتياطية - صالة حسام</title>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
-            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px; }
-            .section { margin-bottom: 30px; page-break-inside: avoid; }
-            .section-title { background: #f5f5f5; padding: 10px; border: 1px solid #000; font-weight: bold; font-size: 18px; }
-            .item { border: 1px solid #ccc; padding: 10px; margin: 5px 0; }
-            .member-info { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-            .member-courses, .member-diets { margin-top: 10px; }
-            @media print { body { font-size: 12px; } .header { page-break-after: avoid; } }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>النسخة الاحتياطية الكاملة - صالة حسام لكمال الأجسام والرشاقة</h1>
-            <p>تاريخ الإنشاء: ${new Date().toLocaleDateString("ar-SA")}</p>
-          </div>
-
-          <div class="section">
-            <div class="section-title">الأعضاء (${members.length})</div>
-            ${members
-              .map(
-                (member) => `
-              <div class="item">
-                <div class="member-info">
-                  <div><strong>الاسم:</strong> ${member.name}</div>
-                  <div><strong>الهاتف:</strong> ${member.phone}</div>
-                  <div><strong>العمر:</strong> ${member.age}</div>
-                  <div><strong>تاريخ الانضمام:</strong> ${new Date(member.createdAt).toLocaleDateString("ar-SA")}</div>
-                </div>
-                ${
-                  member.courses && member.courses.length > 0
-                    ? `
-                  <div class="member-courses">
-                    <strong>الكورسات:</strong> ${member.courses
-                      .map(
-                        (courseId) =>
-                          courses.find((c) => c.id === courseId)?.name ||
-                          courseId,
-                      )
-                      .join(", ")}
-                  </div>
-                `
-                    : ""
-                }
-                ${
-                  member.dietPlans && member.dietPlans.length > 0
-                    ? `
-                  <div class="member-diets">
-                    <strong>الأنظمة الغذائية:</strong> ${member.dietPlans
-                      .map(
-                        (dietId) =>
-                          dietPlans.find((d) => d.id === dietId)?.name ||
-                          dietId,
-                      )
-                      .join(", ")}
-                  </div>
-                `
-                    : ""
-                }
-              </div>
-            `,
-              )
-              .join("")}
-          </div>
-
-          <div class="section">
-            <div class="section-title">الكورسات (${courses.length})</div>
-            ${courses
-              .map(
-                (course) => `
-              <div class="item">
-                <strong>${course.name}</strong> - أضيف في ${new Date(course.createdAt).toLocaleDateString("ar-SA")}
-              </div>
-            `,
-              )
-              .join("")}
-          </div>
-
-          <div class="section">
-            <div class="section-title">الأنظمة الغذائية (${dietPlans.length})</div>
-            ${dietPlans
-              .map(
-                (diet) => `
-              <div class="item">
-                <strong>${diet.name}</strong> - أضيف في ${new Date(diet.createdAt).toLocaleDateString("ar-SA")}
-              </div>
-            `,
-              )
-              .join("")}
-          </div>
-
-          <div style="text-align: center; margin-top: 40px; font-size: 10px; color: #666;">
-            صمم البرنامج بواسطة حمزه احمد للتواصل واتساب ٠٧٨٠٠٦٥٧٨٢٢
-          </div>
-        </body>
-        </html>
-      `;
-
-      printWindow.document.write(html);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-    } catch (error) {
-      console.error("Error creating backup print:", error);
-      alert("حدث خطأ أثناء إنشاء نسخة الطباعة");
-    }
-  };
-
-  const isActivePath = (href: string) => {
+  const isActive = (href: string) => {
     if (href === "/dashboard") {
       return (
         location.pathname === "/dashboard" ||
@@ -218,89 +85,320 @@ export default function Layout() {
     return location.pathname === href;
   };
 
+  const handleBackupDownload = async () => {
+    try {
+      const members = await getMembers();
+      const courses = await getCourses();
+      const dietPlans = await getDietPlans();
+
+      const backup = {
+        timestamp: new Date().toISOString(),
+        members,
+        courses,
+        dietPlans,
+      };
+
+      const blob = new Blob([JSON.stringify(backup, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `gym-backup-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error creating backup:", error);
+    }
+  };
+
+  const handleBackupPrint = () => {
+    window.print();
+  };
+
+  const openDiagnostic = (componentName: string) => {
+    setActiveComponent(componentName);
+  };
+
+  const closeDiagnostic = () => {
+    setActiveComponent(null);
+  };
+
+  const renderDiagnosticComponent = () => {
+    switch (activeComponent) {
+      case "emergency-recovery":
+        return <EmergencyRecovery />;
+      case "infinite-loop-monitor":
+        return <InfiniteLoopMonitor />;
+      case "emergency-fps-recovery":
+        return <EmergencyFPSRecovery />;
+      case "emergency-data-loss-fix":
+        return <EmergencyDataLossFix />;
+      case "member-relationships-fix":
+        return <MemberRelationshipsFix />;
+      case "complete-member-relationships-fix":
+        return <CompleteMemberRelationshipsFix />;
+      case "sales-table-sync-fix":
+        return <SalesTableSyncFix />;
+      case "comprehensive-storage-diagnostics":
+        return <ComprehensiveStorageDiagnostics />;
+      case "member-groups-storage-diagnostics":
+        return <MemberGroupsStorageDiagnostics />;
+      case "member-groups-quick-fix":
+        return <MemberGroupsQuickFix />;
+      case "debugging-panel":
+        return <DebuggingPanel />;
+      case "supabase-storage-diagnostics":
+        return <SupabaseStorageDiagnostics />;
+      case "real-time-sync-monitor":
+        return <RealTimeSyncMonitor />;
+      case "data-storage-verification":
+        return <DataStorageVerification />;
+      case "members-supabase-test":
+        return <MembersSupabaseTest />;
+      case "sync-error-debugger":
+        return <SyncErrorDebugger />;
+      case "supabase-schema-sync":
+        return <SupabaseSchemaSync />;
+      case "force-sync-utility":
+        return <ForceSyncUtility />;
+      case "clear-data":
+        return <ClearDataComponent />;
+      default:
+        return null;
+    }
+  };
+
+  const getDialogTitle = () => {
+    switch (activeComponent) {
+      case "emergency-recovery":
+        return "استرداد طارئ للموقع";
+      case "infinite-loop-monitor":
+        return "مراقب الحلقات اللا نهائية";
+      case "emergency-fps-recovery":
+        return "إصلاح طارئ لمشكلة 0 FPS";
+      case "emergency-data-loss-fix":
+        return "إصلاح فقدان البيانات";
+      case "member-relationships-fix":
+        return "إصلاح علاقات الأعضاء";
+      case "complete-member-relationships-fix":
+        return "إصلاح شامل للكورسات والأنظمة الغذائية";
+      case "sales-table-sync-fix":
+        return "إصلاح خطأ مزامنة المبيعات";
+      case "comprehensive-storage-diagnostics":
+        return "تشخيص التخزين الشامل";
+      case "member-groups-storage-diagnostics":
+        return "تشخيص مجموعات الأعضاء";
+      case "member-groups-quick-fix":
+        return "إصلاح سريع لمجموعات الأعضاء";
+      case "debugging-panel":
+        return "لوحة التشخيص";
+      case "supabase-storage-diagnostics":
+        return "تشخيص تخزين Supabase";
+      case "real-time-sync-monitor":
+        return "مراقب المزامنة الفورية";
+      case "data-storage-verification":
+        return "التحقق من تخزين البيانات";
+      case "members-supabase-test":
+        return "اختبار أعضاء Supabase";
+      case "sync-error-debugger":
+        return "مصحح أخطاء المزامنة";
+      case "supabase-schema-sync":
+        return "مزامنة مخطط Supabase";
+      case "force-sync-utility":
+        return "أداة المزامنة القسرية";
+      case "clear-data":
+        return "مسح البيانات";
+      default:
+        return "أداة التشخيص";
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-lg border-b border-gray-200">
+      <header className="bg-gradient-to-l from-orange-500 to-amber-500 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg">
-                <Dumbbell className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-right">
-                <h1 className="text-xl font-bold text-gray-900">صالة حسام</h1>
-                <p className="text-sm text-gray-600">لكمال الأجسام والرشاقة</p>
-              </div>
+            <div className="flex items-center">
+              <Dumbbell className="h-8 w-8 text-white" />
+              <h1 className="ml-3 text-xl font-bold text-white">
+                نظام إدارة الجيم
+              </h1>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-2">
+            <nav className="hidden md:flex space-x-8 space-x-reverse">
               {navigation.map((item) => {
                 const Icon = item.icon;
-                const isActive = isActivePath(item.href);
                 return (
-                  <Button
+                  <button
                     key={item.name}
-                    variant={isActive ? "default" : "ghost"}
-                    className={cn(
-                      "flex items-center gap-2 text-sm font-medium transition-all duration-200",
-                      isActive
-                        ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md"
-                        : "text-gray-700 hover:text-orange-600 hover:bg-orange-50",
-                    )}
                     onClick={() => navigate(item.href)}
+                    className={cn(
+                      "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      isActive(item.href)
+                        ? "bg-white/20 text-white"
+                        : "text-white/80 hover:text-white hover:bg-white/10",
+                    )}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4 ml-2" />
                     {item.name}
-                  </Button>
+                  </button>
                 );
               })}
             </nav>
 
-            {/* Actions */}
-            <div className="flex items-center gap-3">
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+              <SyncStatusIndicator />
+
               {/* Settings Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="hidden sm:flex items-center gap-2 text-gray-700 border-gray-300 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600"
+                    className="text-white hover:bg-white/20"
                   >
                     <Settings className="h-4 w-4" />
                     الضبط
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={handleBackupDownload}>
-                    <Download className="h-4 w-4 mr-2" />
-                    تنزيل نسخة احتياطية (JSON)
+                <DropdownMenuContent align="end" className="w-64">
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("emergency-recovery")}
+                  >
+                    🆘 استرداد طارئ للموقع (فوري)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("infinite-loop-monitor")}
+                  >
+                    🚨 مراقب الحلقات اللا نهائية (عاجل)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("emergency-fps-recovery")}
+                  >
+                    🚨 إصلاح طارئ 0 FPS (حرج)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("emergency-data-loss-fix")}
+                  >
+                    🚨 إصلاح فقدان البيانات (أولوية)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      openDiagnostic("complete-member-relationships-fix")
+                    }
+                  >
+                    🔗 إصلاح شامل للكورسات والأنظمة الغذائية
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("sales-table-sync-fix")}
+                  >
+                    💰 إصلاح خطأ مزامنة المبيعات
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleBackupPrint}>
                     <FileText className="h-4 w-4 mr-2" />
                     طباعة النسخة الاحتياطية
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleBackupDownload}>
+                    <Download className="h-4 w-4 mr-2" />
+                    تنزيل نسخة احتياطية
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() =>
+                      openDiagnostic("comprehensive-storage-diagnostics")
+                    }
+                  >
+                    🔧 تشخيص التخزين ال��امل
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      openDiagnostic("member-groups-storage-diagnostics")
+                    }
+                  >
+                    👥 تشخيص مجموعات الأعضاء
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("member-groups-quick-fix")}
+                  >
+                    ⚡ إصلاح سريع لمجموعات الأعضاء
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("debugging-panel")}
+                  >
+                    🐛 لوحة التشخيص
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() =>
+                      openDiagnostic("supabase-storage-diagnostics")
+                    }
+                  >
+                    📊 تشخيص تخزين Supabase
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("real-time-sync-monitor")}
+                  >
+                    🔄 مراقب المزامنة الفورية
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("data-storage-verification")}
+                  >
+                    ✅ التحقق من تخزين البيانات
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("members-supabase-test")}
+                  >
+                    🧪 اختبار أعضاء Supabase
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("sync-error-debugger")}
+                  >
+                    🔍 مصحح أخطاء المزامنة
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("supabase-schema-sync")}
+                  >
+                    🔗 مزامنة مخطط Supabase
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("force-sync-utility")}
+                  >
+                    💪 أداة المزامنة القسرية
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => openDiagnostic("clear-data")}
+                  >
+                    🗑️ مسح البيانات
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 text-gray-700 border-gray-300 hover:bg-red-50 hover:border-red-300 hover:text-red-600"
+                className="text-white hover:bg-white/20"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 ml-2" />
                 خروج
               </Button>
+            </div>
 
-              {/* Mobile menu button */}
+            {/* Mobile menu button */}
+            <div className="md:hidden">
               <Button
                 variant="ghost"
                 size="sm"
-                className="md:hidden"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-white hover:bg-white/20"
               >
                 {isMobileMenuOpen ? (
                   <X className="h-5 w-5" />
@@ -310,36 +408,54 @@ export default function Layout() {
               </Button>
             </div>
           </div>
-        </div>
 
-        {/* Mobile Navigation */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white">
-            <div className="px-4 py-2 space-y-1">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                const isActive = isActivePath(item.href);
-                return (
-                  <Button
-                    key={item.name}
-                    variant={isActive ? "default" : "ghost"}
-                    className={cn(
-                      "w-full justify-start gap-3 text-sm font-medium",
-                      isActive
-                        ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white"
-                        : "text-gray-700 hover:text-orange-600 hover:bg-orange-50",
-                    )}
-                    onClick={() => {
-                      navigate(item.href);
-                      setIsMobileMenuOpen(false);
-                    }}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.name}
-                  </Button>
-                );
-              })}
-              <div className="pt-2 border-t border-gray-200 space-y-1">
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                {navigation.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Button
+                      key={item.name}
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start gap-3",
+                        isActive(item.href)
+                          ? "bg-white/20 text-white"
+                          : "text-white/80 hover:text-white hover:bg-white/10",
+                      )}
+                      onClick={() => {
+                        navigate(item.href);
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.name}
+                    </Button>
+                  );
+                })}
+                <div className="border-t border-white/20 my-2"></div>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-3 text-yellow-600 hover:bg-yellow-50"
+                  onClick={() => {
+                    openDiagnostic("emergency-data-loss-fix");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  🚨 إصلاح فقدان البيانات
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-3 text-blue-600 hover:bg-blue-50"
+                  onClick={() => {
+                    openDiagnostic("member-relationships-fix");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  🔗 إصلاح علاقات الأعضاء
+                </Button>
                 <Button
                   variant="ghost"
                   className="w-full justify-start gap-3 text-blue-600 hover:bg-blue-50"
@@ -372,14 +488,24 @@ export default function Layout() {
                 </Button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
       </main>
+
+      {/* Diagnostic Component Modal */}
+      <Dialog open={!!activeComponent} onOpenChange={closeDiagnostic}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{getDialogTitle()}</DialogTitle>
+          </DialogHeader>
+          {renderDiagnosticComponent()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

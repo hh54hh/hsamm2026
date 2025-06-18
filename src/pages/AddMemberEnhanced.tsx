@@ -51,6 +51,7 @@ import {
   getDietPlans,
   getMemberById,
 } from "@/lib/storage-new";
+import { saveSimpleMember } from "@/lib/simpleMemberStorage";
 import { cn } from "@/lib/utils";
 
 export default function AddMemberEnhanced() {
@@ -245,7 +246,7 @@ export default function AddMemberEnhanced() {
         updatedAt: new Date(),
       };
 
-      await saveMember(memberData);
+      await saveSimpleMember(memberData);
       setSaveSuccess(true);
 
       setTimeout(() => {

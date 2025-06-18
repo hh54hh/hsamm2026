@@ -257,6 +257,7 @@ export default function Inventory() {
         unitPrice: product.price,
         totalPrice: totalPrice,
         createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       // Save sale and update product quantity
@@ -806,7 +807,8 @@ export default function Inventory() {
                     </p>
                     {products.length === 0 && (
                       <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg inline-block">
-                        💡 نصيحة: أضف منتجات متنوعة لتسهيل عملية البيع والمتابعة
+                        💡 نصيحة: أضف من��جات متنوعة لتسهيل عملية البيع
+                        والمتابعة
                       </div>
                     )}
                   </CardContent>
@@ -827,7 +829,7 @@ export default function Inventory() {
                       <div className="absolute top-2 left-2">
                         {product.quantity <= 5 ? (
                           <div className="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full font-medium animate-pulse">
-                            ⚠️ مخزون منخفض
+                            ���️ مخزون منخفض
                           </div>
                         ) : product.quantity <= 10 ? (
                           <div className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
@@ -1068,7 +1070,7 @@ export default function Inventory() {
                   {saleForm.productId && saleForm.quantity && (
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <h4 className="font-medium text-green-800 mb-2">
-                        ملخص العملية
+                        ملخص ال��ملية
                       </h4>
                       {(() => {
                         const product = products.find(

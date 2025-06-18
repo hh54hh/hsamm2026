@@ -2,6 +2,13 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
+// Import console filter to suppress third-party library warnings
+import "./utils/consoleFilter";
+// Import performance optimizer
+import "./utils/performanceOptimizerFixed";
+// Import data persistence monitor to prevent data loss
+import "./utils/dataPersistenceMonitor";
+
 // Register service worker for PWA
 import { registerSW } from "virtual:pwa-register";
 

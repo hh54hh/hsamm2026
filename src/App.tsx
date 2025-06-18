@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import "./styles/print.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -14,13 +15,16 @@ import Courses from "./pages/Courses";
 import DietPlans from "./pages/DietPlans";
 import Inventory from "./pages/Inventory";
 import NotFound from "./pages/NotFound";
+import NutritionRecommendation from "./pages/NutritionRecommendation";
 
 // Components
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ConnectionNotifications from "./components/ConnectionNotifications";
+import ConnectionFixNotification from "./components/ConnectionFixNotification";
 
 // Utils
-import { initializeDatabase } from "./lib/database";
+import { initializeUnifiedDatabase } from "./lib/unified-database";
 import { getAuthState } from "./lib/storage-new";
 
 // Loading component
@@ -72,8 +76,8 @@ const App = () => {
   const initializeApp = async () => {
     try {
       setDbError(null);
-      // Initialize database
-      await initializeDatabase();
+      // Initialize unified database (works offline/online)
+      await initializeUnifiedDatabase();
       setIsDBInitialized(true);
 
       // Get auth state
@@ -111,6 +115,8 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <ConnectionNotifications />
+        <ConnectionFixNotification />
         <BrowserRouter>
           <Routes>
             {/* Redirect root to appropriate page based on auth */}
@@ -148,6 +154,10 @@ const App = () => {
               <Route path="courses" element={<Courses />} />
               <Route path="diet-plans" element={<DietPlans />} />
               <Route path="inventory" element={<Inventory />} />
+              <Route
+                path="nutrition-recommendation/:memberId"
+                element={<NutritionRecommendation />}
+              />
             </Route>
 
             {/* Catch all for 404 */}

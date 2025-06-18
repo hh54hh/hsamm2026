@@ -25,7 +25,18 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       }
     };
 
-    checkAuth();
+    // Add timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      console.warn("Auth check timeout - proceeding to login");
+      setIsAuthenticated(false);
+      navigate("/login");
+    }, 5000);
+
+    checkAuth().finally(() => {
+      clearTimeout(timeout);
+    });
+
+    return () => clearTimeout(timeout);
   }, [navigate]);
 
   // Show loading while checking auth
