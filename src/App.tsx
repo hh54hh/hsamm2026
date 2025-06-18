@@ -37,27 +37,22 @@ const AppLoading = () => (
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [isDBInitialized, setIsDBInitialized] = useState(false);
-  const [dbError, setDbError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [authState, setAuthState] = useState<{
     isAuthenticated: boolean;
   } | null>(null);
 
   const initializeApp = async () => {
     try {
-      setDbError(null);
-      // Initialize unified database (works offline/online)
-      await initializeUnifiedDatabase();
-      setIsDBInitialized(true);
-
       // Get auth state
-      const auth = await getAuthState();
+      const auth = getAuthState();
       setAuthState(auth);
+      setIsInitialized(true);
     } catch (error) {
-      console.error("Database initialization failed:", error);
-      setDbError(
-        error instanceof Error ? error.message : "فشل في تهيئة قاعدة البيانات",
-      );
+      console.error("App initialization failed:", error);
+      // Set default state in case of error
+      setAuthState({ isAuthenticated: false });
+      setIsInitialized(true);
     }
   };
 
@@ -65,19 +60,9 @@ const App = () => {
     initializeApp();
   }, []);
 
-  // Show loading while initializing database
-  if (!isDBInitialized && !dbError) {
-    return <DatabaseLoading />;
-  }
-
-  // Show error if database failed to initialize
-  if (dbError) {
-    return <DatabaseError error={dbError} onRetry={initializeApp} />;
-  }
-
-  // Show loading if auth state is not loaded yet
-  if (!authState) {
-    return <DatabaseLoading />;
+  // Show loading while initializing
+  if (!isInitialized || !authState) {
+    return <AppLoading />;
   }
 
   return (
