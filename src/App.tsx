@@ -22,38 +22,14 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { getAuthState } from "@/lib/auth-new";
 
 // Loading component
-const DatabaseLoading = () => (
+const AppLoading = () => (
   <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
     <div className="text-center space-y-4">
       <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto"></div>
       <h2 className="text-xl font-semibold text-gray-900">
-        جاري تهيئة قاعدة البيانات...
+        جاري تحميل النظام...
       </h2>
       <p className="text-gray-600">يرجى الانتظار قليلاً</p>
-    </div>
-  </div>
-);
-
-const DatabaseError = ({
-  error,
-  onRetry,
-}: {
-  error: string;
-  onRetry: () => void;
-}) => (
-  <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 flex items-center justify-center">
-    <div className="text-center space-y-4 max-w-md">
-      <div className="text-red-500 text-6xl">⚠️</div>
-      <h2 className="text-xl font-semibold text-gray-900">
-        خطأ في قاعدة البيانات
-      </h2>
-      <p className="text-gray-600">{error}</p>
-      <button
-        onClick={onRetry}
-        className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-      >
-        إعادة المحاولة
-      </button>
     </div>
   </div>
 );
