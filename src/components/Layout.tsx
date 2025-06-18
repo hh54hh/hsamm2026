@@ -40,6 +40,8 @@ const navigation = [
     href: "/dashboard/diet-plans",
     icon: Apple,
   },
+  { name: "المخزون والمبيعات", href: "/dashboard/inventory", icon: Package },
+  { name: "فحص النظام", href: "/dashboard/diagnostics", icon: Activity },
 ];
 
 export default function Layout() {
