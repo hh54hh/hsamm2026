@@ -27,6 +27,8 @@ import {
   getSubscribers,
   getCoursePoints,
   getDietItems,
+  getProducts,
+  getSales,
 } from "@/lib/database-new";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
