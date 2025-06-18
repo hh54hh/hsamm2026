@@ -38,6 +38,37 @@ const AppLoading = () => (
   </div>
 );
 
+// Database error component
+const DatabaseError = ({ error }: { error: string }) => (
+  <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 flex items-center justify-center p-4">
+    <div className="text-center space-y-6 max-w-2xl">
+      <div className="text-red-500 text-6xl">⚠️</div>
+      <h2 className="text-2xl font-bold text-gray-900">
+        خطأ في إعداد قاعدة البيانات
+      </h2>
+      <div className="bg-white p-6 rounded-lg border border-red-200 text-right">
+        <p className="text-red-700 mb-4">{error}</p>
+        <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
+          <h3 className="font-semibold mb-2">خطوات الحل:</h3>
+          <ol className="list-decimal list-inside space-y-1">
+            <li>انتقل إلى لوحة تحكم Supabase</li>
+            <li>اذهب إلى قسم SQL Editor</li>
+            <li>انسخ والصق محتوى ملف gym-management-new-schema.sql</li>
+            <li>اضغط Run لتنفيذ الاستعلام</li>
+            <li>أعد تحميل الصفحة</li>
+          </ol>
+        </div>
+      </div>
+      <button
+        onClick={() => window.location.reload()}
+        className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+      >
+        إعادة تحميل الصفحة
+      </button>
+    </div>
+  </div>
+);
+
 const queryClient = new QueryClient();
 
 const App = () => {
