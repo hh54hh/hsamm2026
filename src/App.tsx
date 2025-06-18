@@ -6,15 +6,17 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-// Pages
+// Pages - using lazy loading for better performance
+import { lazy, Suspense } from "react";
 import Login from "./pages/Login";
-import Subscribers from "./pages/Subscribers";
-import AddSubscriber from "./pages/AddSubscriber";
-import Courses from "./pages/Courses";
-import DietPlans from "./pages/DietPlans";
-import Inventory from "./pages/Inventory";
-import SystemDiagnostics from "./pages/SystemDiagnostics";
 import NotFound from "./pages/NotFound";
+
+const Subscribers = lazy(() => import("./pages/Subscribers"));
+const AddSubscriber = lazy(() => import("./pages/AddSubscriber"));
+const Courses = lazy(() => import("./pages/Courses"));
+const DietPlans = lazy(() => import("./pages/DietPlans"));
+const Inventory = lazy(() => import("./pages/Inventory"));
+const SystemDiagnostics = lazy(() => import("./pages/SystemDiagnostics"));
 
 // Components
 import Layout from "./components/Layout";
