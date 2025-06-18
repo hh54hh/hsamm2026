@@ -120,6 +120,11 @@ const App = () => {
     return <AppLoading />;
   }
 
+  // Show database error if database is not properly set up
+  if (dbError) {
+    return <DatabaseError error={dbError} />;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
